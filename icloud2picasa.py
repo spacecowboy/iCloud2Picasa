@@ -68,11 +68,38 @@ def sync(client, variables):
     folder is then uploaded to Picasa. New photos in Picasa are downloaded to
     the upload folder.'''
     #Download list of photos from picasa
+    #If this fails, should create the album
+    album_url = '/data/feed/api/user/{0}/albumid/{1}'.format(variables['username'], variables['picasaalbum'])
+    try:
+        photos = client.GetFeed(album_url + '?kind=photo')
+    except GooglePhotosException:
+        #Try creating the album first
+        album_entry = client.InsertAlbum(variables['picasaalbum'], 'This is where pictures taken from your phone ends up.', access='private', commenting_enabled='false')
+        #And retry
+        photos = client.GetFeed(album_url + '?kind=photo')
+        
+    picasa_photos = photos.entry
+    for photo in photos.entry:
+        print 'Photo title:', photo.title.text
+
     #Get list of photos in photo stream folder
-    #Create two delta lists, one to upload and one to download.
-    #Upload
-    #Download
     pass
+    #Create two delta lists, one to upload and one to download.
+    files_to_upload = ()
+    photos_to_download = ()
+
+    #Upload
+    #Remove extension (last 4 chards) for title. Use empty description.
+    for filename in files_to_upload:
+        photo = gd_client.InsertPhotoSimple(album_url, filename[:-4], '', filename, keywords = 'icloud,')
+        #Add any necessary metadata here.
+
+    #Download
+    for photo in photos_to_download:
+        url = photo.GetMediaURL()
+        #Download url to specified directory
+        pass
+    
 
 if __name__ == '__main__':
     #Read login info and other variables from disk
