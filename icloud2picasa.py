@@ -10,7 +10,7 @@ folder to a specified folder (by default, 'Instant Upload' to match Android) on
 Picasa Web albums. If it does not exist, it should be created.
 
 Things I might add:
-    Support syncing new things in Picasa to photo stream.
+    Support syncing new things in Picasa to photo stream. Code for this has already been written. But it needs some mroe work.
 
 '''
 
@@ -116,13 +116,6 @@ def sync(client, variables):
     photos = client.GetFeed(album_url + '?kind=photo')
         
     picasa_photos = photos.entry
-    
-    photos_to_download = []
-    print("Determining which photos to download...")
-    for photo in picasa_photos:
-        #If the photo does not have the icloud tag, then we should download it.
-        if str(photo.media.keywords.text).find(__tag__) == -1:
-            photos_to_download.append(photo)
 
     #Upload
     files_to_upload = []
@@ -132,32 +125,38 @@ def sync(client, variables):
     for (filepath, filename) in locate(variables['photostreamfolder']):
         match = __jpg_finder__.match(filename)
         name = match.group(1)
-    	if (filename not in picasa_titles) and (name not in picasa_titles):
+        if (filename not in picasa_titles) and (name not in picasa_titles):
             files_to_upload.append(filepath)
             
-    #Remove extension for title. Use empty description.
+    #Use empty description.
     print("Uploading files...")
     for filepath in files_to_upload:
         (path, filename) = os.path.split(filepath)
         print 'Uploading: ' + filename
-        match = __jpg_finder__.match(filename)
-        name = match.group(1)
-        photo = client.InsertPhotoSimple(album_url, name, '', filepath, keywords = [__tag__])
+        photo = client.InsertPhotoSimple(album_url, filename, '', filepath, keywords = [__tag__])
         #Add any necessary metadata here.
 
     #Download
+	'''
+	photos_to_download = []
+    print("Determining which photos to download...")
+    for photo in picasa_photos:
+        #If the photo does not have the icloud tag, then we should download it.
+        if str(photo.media.keywords.text).find(__tag__) == -1:
+            photos_to_download.append(photo)
+			
     print("Downloading files...")
     for photo in photos_to_download:
         url = photo.GetMediaURL()
         filename = photo.title.text
-        match = __jpg_finder__.match(filename)
-        if match is None or match.group(0) is None:
-            filename += ".jpg"
+        #match = __jpg_finder__.match(filename)
+        #if match is None or match.group(0) is None:
+        #    filename += ".jpg"
         #Download url to specified directory
         print "Downloading: " + url + " to: " + os.path.join(variables['uploadfolder'], filename)
         try:
-            with open(os.path.join(variables['uploadfolder'], filename), 'w') as f:
-                f.write(urllib.urlopen(url).read())
+            #with open(os.path.join(variables['uploadfolder'], filename), 'w') as f:
+            #    f.write(urllib.urlopen(url).read())
 
             #Add the icloud tag to the photo
             if not photo.media.keywords:
@@ -171,6 +170,7 @@ def sync(client, variables):
             client.UpdatePhotoMetadata(photo)
         except IOError:
             print 'Could not save file! ' + filename
+	'''
         
 def locate(root):
     '''Locate all files matching supplied filename pattern in and below
