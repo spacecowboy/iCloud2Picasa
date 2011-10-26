@@ -1,0 +1,8 @@
+An easy way to get this to work without installing additional stuff is to download this:
+
+http://code.google.com/p/gdata-python-client/downloads/list
+
+Take the newest version, or 2.0.15 which is the newest at the time of this writing.
+
+Now extract the folder, and go into the src folder within. From this (gdata-2.0.15/src/) copy the atom and gdata directories
+to the iCloud2Picasa folder. The imports should work.
